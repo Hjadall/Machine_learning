@@ -1,104 +1,96 @@
-# README: Earthquake Data Analysis Pipeline
+# Earthquake Prediction and Location Classification
 
-This repository contains a series of Python scripts designed to preprocess, analyze, and model earthquake data. The scripts are divided into two main categories: **classification** and **regression**. Below is a detailed explanation of each script and its purpose.
+## Project Overview
 
----
+This project aims to predict the time and location of earthquakes in Turkey using machine learning models. The dataset spans from 1915 to 2023 and includes variables such as date of occurrence, latitude, longitude, depth, and magnitude values (MD, ML, Mw, Ms, Mb). The project employs both regression and classification models to predict the time of the next earthquake and classify its location, respectively.
 
-## 1. **Data Cleaning Scripts**
+## Key Objectives
 
-### `cleaning data 1(deletion).py`
-This script is responsible for cleaning the raw earthquake dataset by removing rows with missing or invalid data.
+- **Regression Models**: Predict the time of the next earthquake.
+- **Classification Models**: Classify the location of the next earthquake based on historical data.
 
-- **Input**: Raw earthquake dataset (`turkey_earthquakes(1915-2023_may).csv`).
-- **Steps**:
-  1. **Drop rows with missing 'Mw' values**: The script removes rows where the 'Mw' (moment magnitude) column has null values.
-  2. **Convert 'Time of occurrence' to datetime**: The script attempts to convert the 'Time of occurrence' column to a datetime format. If the conversion fails (due to incorrect formatting), those rows are dropped.
-  3. **Save the cleaned dataset**: The cleaned dataset is saved as `turkey_earthquakes_cleaned.csv`.
+## Methodology
 
-- **Output**: A cleaned dataset ready for further analysis.
+### Data Cleaning
 
----
+Two data cleaning approaches were explored:
+1. **Deletion of rows with missing values**.
+2. **Mean imputation** - This approach proved more effective, enhancing model performance.
 
-## 2. **Classification Models**
+**Special Attention**:
+- The 'Time of Occurrence' column was converted to datetime format using the format `'%M:%S.%f'` to handle minute, second, and microsecond components.
+- The 'Date of Occurrence' column was preprocessed to extract relevant time-related features (year, month, day).
+- The 'Time of Occurrence' column was preprocessed to extract relevant time-related features (hour, minute, second).
 
-### `choosing classification model (1).py`
-This script evaluates different classification models to predict earthquake regions based on latitude and longitude.
+## Model Performance
 
-- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
-- **Steps**:
-  1. **Preprocess the data**: The script converts the 'Date of occurrence' column into separate 'Year', 'Month', and 'Day' columns and drops the original 'Date' column.
-  2. **K-means clustering**: The script uses K-means clustering to divide the geographic area into 5 distinct regions based on latitude and longitude.
-  3. **Model evaluation**: The script evaluates three classification models:
-     - **Random Forest**
-     - **Support Vector Machine (SVM)**
-     - **Neural Network (MLP)**
-  4. **Metrics**: For each model, the script calculates and prints the accuracy, precision, and recall.
+### Regression Models
 
-- **Output**: Performance metrics for each classification model.
+#### First Model (Time of Occurrence and Date of Occurrence columns)
 
----
+| Model                  | MAE    | MSE     | R²     |
+|------------------------|--------|---------|--------|
+| Linear Regression      | 6.7370 | 157.3524| 0.3731 |
+| Decision Tree Regressor| 8.1055 | 219.6095| 0.0263 |
+| Random Forest Regressor| 6.3108 | 119.0472| 0.4661 |
 
-### `choosing classification model (2).py`
-This script is similar to the first classification script but includes an additional feature: the largest magnitude value (`xM`) among the given magnitude types (MD, ML, Mw, Ms, Mb).
+#### Second Model (Date of Occurrence Only)
 
-- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
-- **Steps**:
-  1. **Preprocess the data**: Similar to the first script, but the K-means clustering now includes the `xM` feature.
-  2. **Model evaluation**: The same three models are evaluated, but with the additional `xM` feature.
-  3. **Metrics**: Accuracy, precision, and recall are calculated for each model.
+| Model                  | MAE    | MSE     | R²     |
+|------------------------|--------|---------|--------|
+| Linear Regression      | 1.9709 | 13.1876 | 0.7277 |
+| Decision Tree Regressor| 1.7364 | 22.2929 | 0.6297 |
+| Random Forest Regressor| 1.7014 | 14.1258 | 0.7622 |
 
-- **Output**: Performance metrics for each classification model with the additional `xM` feature.
+**Analysis**:
+- The second model, using only the date of occurrence and employing the Random Forest Regressor, outperforms the first model based on all metrics.
 
----
+### Classification Models
 
-### `choosing classification model (3).py`
-This script extends the previous classification scripts by adding another feature: earthquake depth.
+#### First Model (Latitude and Longitude columns)
 
-- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
-- **Steps**:
-  1. **Preprocess the data**: Similar to the previous scripts, but the K-means clustering now includes both `xM` and `Depth` features.
-  2. **Model evaluation**: The same three models are evaluated, but with the additional `Depth` feature.
-  3. **Metrics**: Accuracy, precision, and recall are calculated for each model.
+| Model                          | Accuracy | Precision | Recall  |
+|--------------------------------|----------|-----------|---------|
+| Random Forest Classification   | 0.9949   | 0.99497   | 0.99495 |
+| Support Vector Machine (SVM)   | 0.9877   | 0.98814   | 0.98773 |
+| Neural Network (MLP)           | 0.9618   | 0.96225   | 0.96176 |
 
-- **Output**: Performance metrics for each classification model with the additional `Depth` feature.
+#### Second Model (Latitude, Longitude, xM columns)
 
----
+| Model                          | Accuracy | Precision | Recall  |
+|--------------------------------|----------|-----------|---------|
+| Random Forest Classification   | 0.9928   | 0.99281   | 0.99278 |
+| Support Vector Machine (SVM)   | 0.9848   | 0.98523   | 0.98485 |
+| Neural Network (MLP)           | 0.9646   | 0.96551   | 0.96465 |
 
-## 3. **Regression Models**
+#### Third Model (Latitude, Longitude, xM, Depth columns)
 
-### `choosing regression model (1).py`
-This script evaluates different regression models to predict the date (year, month, day) of earthquake occurrences.
+| Model                          | Accuracy | Precision | Recall  |
+|--------------------------------|----------|-----------|---------|
+| Random Forest Classification   | 0.9965   | 0.99648   | 0.9965  |
+| Support Vector Machine (SVM)   | 0.9906   | 0.99069   | 0.9906  |
+| Neural Network (MLP)           | 0.9711   | 0.97163   | 0.9711  |
 
-- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
-- **Steps**:
-  1. **Preprocess the data**: The script converts the 'Date of occurrence' and 'Time of occurrence' columns into separate features (Year, Month, Day, Hour, Minute, Second) and drops the original columns.
-  2. **Model evaluation**: The script evaluates three regression models:
-     - **Linear Regression**
-     - **Decision Tree Regressor**
-     - **Random Forest Regressor**
-  3. **Metrics**: For each model, the script calculates and prints the Mean Absolute Error (MAE), Mean Squared Error (MSE), and R-squared (R²) score.
+**Analysis**:
+- The Random Forest classification model in the third configuration (including Latitude, Longitude, xM, and Depth) exhibits exceptional accuracy, precision, and recall.
+- Across all models, Random Forest consistently performs well with high accuracy, precision, and recall.
+- Adding 'xM' as a feature does not significantly impact performance compared to the first model without 'xM'.
 
-- **Output**: Performance metrics for each regression model.
+## Combined Model Performance
 
----
+- **Combined Accuracy (Time)**: 0.9963
+- **Combined Accuracy (Location)**: 0.9965
 
-### `choosing regression model (2).py`
-This script is similar to the first regression script but includes additional time features (Hour, Minute, Second) in the target variable.
+The combined model, considering both time and location aspects, demonstrates exceptional accuracy, indicating the robustness and effectiveness of the machine learning models in providing comprehensive predictions for both temporal and spatial aspects of earthquake occurrences.
 
-- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
-- **Steps**:
-  1. **Preprocess the data**: Similar to the first regression script, but the target variable now includes Hour, Minute, and Second.
-  2. **Model evaluation**: The same three regression models are evaluated, but with the additional time features.
-  3. **Metrics**: MAE, MSE, and R² are calculated for each model.
+## Visualizations
 
-- **Output**: Performance metrics for each regression model with additional time features.
+Visualizations were generated to compare actual vs. predicted values for both regression and classification models.
 
----
+## Model Selection Justification
 
-## Summary
+The **Random Forest model** consistently demonstrated superior performance in both regression and classification tasks. Its ability to handle complex relationships within the data, mitigate overfitting, and provide high accuracy, precision, and recall makes it the optimal choice for this project.
 
-- **Data Cleaning**: The `cleaning data 1(deletion).py` script prepares the raw dataset by removing rows with missing or invalid data.
-- **Classification Models**: The `choosing classification model (1).py`, `(2).py`, and `(3).py` scripts evaluate classification models to predict earthquake regions, with each script adding more features (magnitude and depth) to improve accuracy.
-- **Regression Models**: The `choosing regression model (1).py` and `(2).py` scripts evaluate regression models to predict the date and time of earthquake occurrences, with the second script including more granular time features.
+## Conclusion
 
-Each script outputs performance metrics, allowing for easy comparison of different models and feature sets.
+The Random Forest model, particularly in the first classification model using only Latitude and Longitude, proves to be the optimal choice for predicting earthquake locations. The combination of regression and classification models enhances the overall predictive capabilities of the system. Further refinement and exploration of features may lead to even more accurate predictions in future iterations of the model.
