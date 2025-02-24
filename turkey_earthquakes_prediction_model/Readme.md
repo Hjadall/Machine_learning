@@ -1,82 +1,104 @@
-# Turkey Earthquakes Prediction Model
+# README: Earthquake Data Analysis Pipeline
 
-## Introduction
-This project focuses on predicting earthquake magnitudes and locations in Turkey using machine learning techniques. By analyzing historical seismic data, the model aims to identify patterns that precede significant seismic events, providing valuable insights for disaster preparedness and risk mitigation.
+This repository contains a series of Python scripts designed to preprocess, analyze, and model earthquake data. The scripts are divided into two main categories: **classification** and **regression**. Below is a detailed explanation of each script and its purpose.
 
-## Project Overview
-- **Objective**: Develop a predictive model to forecast earthquake occurrences in Turkey.
-- **Data Source**: Utilizes historical earthquake data from Turkey, including parameters such as date, time, latitude, longitude, depth, and magnitude.
-- **Methodology**: Employs machine learning algorithms to analyze seismic data and predict future earthquakes.
+---
 
-## Installation
-1. **Clone the Repository**:
-    ```bash
-    git clone https://github.com/Hjadall/Machine_learning.git
-    cd Machine_learning/turkey_earthquakes_prediction_model
-    ```
+## 1. **Data Cleaning Scripts**
 
-2. **Set Up a Virtual Environment**:
-    - Using `venv`:
-        ```bash
-        python3 -m venv env
-        source env/bin/activate  # On Windows, use `env\Scripts\activate`
-        ```
-    - Using `conda`:
-        ```bash
-        conda create --name earthquake_prediction python=3.8
-        conda activate earthquake_prediction
-        ```
+### `cleaning data 1(deletion).py`
+This script is responsible for cleaning the raw earthquake dataset by removing rows with missing or invalid data.
 
-3. **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+- **Input**: Raw earthquake dataset (`turkey_earthquakes(1915-2023_may).csv`).
+- **Steps**:
+  1. **Drop rows with missing 'Mw' values**: The script removes rows where the 'Mw' (moment magnitude) column has null values.
+  2. **Convert 'Time of occurrence' to datetime**: The script attempts to convert the 'Time of occurrence' column to a datetime format. If the conversion fails (due to incorrect formatting), those rows are dropped.
+  3. **Save the cleaned dataset**: The cleaned dataset is saved as `turkey_earthquakes_cleaned.csv`.
 
-## Usage
-1. **Data Preparation**:
-    - Ensure the dataset (`earthquake_data.csv`) is in the `data` directory.
-    - The dataset should include columns: `date`, `time`, `latitude`, `longitude`, `depth`, `magnitude`.
+- **Output**: A cleaned dataset ready for further analysis.
 
-2. **Model Training**:
-    - Run the training script:
-        ```bash
-        python train_model.py
-        ```
-    - This script will preprocess the data, train the model, and save the trained model to the `models` directory.
+---
 
-3. **Making Predictions**:
-    - Use the prediction script:
-        ```bash
-        python predict.py --input data/new_data.csv --output predictions.csv
-        ```
-    - Replace `data/new_data.csv` with your input file containing new seismic data.
+## 2. **Classification Models**
 
-## Features
-- **Data Visualization**: Includes scripts to visualize seismic data trends and patterns.
-- **Model Evaluation**: Provides tools to assess model performance using metrics like RMSE and R².
-- **Geospatial Mapping**: Plots earthquake occurrences on a map for spatial analysis.
+### `choosing classification model (1).py`
+This script evaluates different classification models to predict earthquake regions based on latitude and longitude.
 
-## Contributing
-Contributions are welcome! To contribute:
+- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
+- **Steps**:
+  1. **Preprocess the data**: The script converts the 'Date of occurrence' column into separate 'Year', 'Month', and 'Day' columns and drops the original 'Date' column.
+  2. **K-means clustering**: The script uses K-means clustering to divide the geographic area into 5 distinct regions based on latitude and longitude.
+  3. **Model evaluation**: The script evaluates three classification models:
+     - **Random Forest**
+     - **Support Vector Machine (SVM)**
+     - **Neural Network (MLP)**
+  4. **Metrics**: For each model, the script calculates and prints the accuracy, precision, and recall.
 
-1. Fork the repository.
-2. Create a new branch:
-    ```bash
-    git checkout -b feature-branch
-    ```
-3. Make your changes and commit them:
-    ```bash
-    git commit -m "Description of changes"
-    ```
-4. Push to the branch:
-    ```bash
-    git push origin feature-branch
-    ```
-5. Open a pull request.
+- **Output**: Performance metrics for each classification model.
 
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+---
 
-## Acknowledgments
-- Inspired by various earthquake prediction projects and research studies focusing on Turkey.
-- Utilizes data from reputable seismic databases and incorporates methodologies from recent scientific publications.
+### `choosing classification model (2).py`
+This script is similar to the first classification script but includes an additional feature: the largest magnitude value (`xM`) among the given magnitude types (MD, ML, Mw, Ms, Mb).
+
+- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
+- **Steps**:
+  1. **Preprocess the data**: Similar to the first script, but the K-means clustering now includes the `xM` feature.
+  2. **Model evaluation**: The same three models are evaluated, but with the additional `xM` feature.
+  3. **Metrics**: Accuracy, precision, and recall are calculated for each model.
+
+- **Output**: Performance metrics for each classification model with the additional `xM` feature.
+
+---
+
+### `choosing classification model (3).py`
+This script extends the previous classification scripts by adding another feature: earthquake depth.
+
+- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
+- **Steps**:
+  1. **Preprocess the data**: Similar to the previous scripts, but the K-means clustering now includes both `xM` and `Depth` features.
+  2. **Model evaluation**: The same three models are evaluated, but with the additional `Depth` feature.
+  3. **Metrics**: Accuracy, precision, and recall are calculated for each model.
+
+- **Output**: Performance metrics for each classification model with the additional `Depth` feature.
+
+---
+
+## 3. **Regression Models**
+
+### `choosing regression model (1).py`
+This script evaluates different regression models to predict the date (year, month, day) of earthquake occurrences.
+
+- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
+- **Steps**:
+  1. **Preprocess the data**: The script converts the 'Date of occurrence' and 'Time of occurrence' columns into separate features (Year, Month, Day, Hour, Minute, Second) and drops the original columns.
+  2. **Model evaluation**: The script evaluates three regression models:
+     - **Linear Regression**
+     - **Decision Tree Regressor**
+     - **Random Forest Regressor**
+  3. **Metrics**: For each model, the script calculates and prints the Mean Absolute Error (MAE), Mean Squared Error (MSE), and R-squared (R²) score.
+
+- **Output**: Performance metrics for each regression model.
+
+---
+
+### `choosing regression model (2).py`
+This script is similar to the first regression script but includes additional time features (Hour, Minute, Second) in the target variable.
+
+- **Input**: Cleaned dataset (`turkey_earthquakes_cleaned.csv`).
+- **Steps**:
+  1. **Preprocess the data**: Similar to the first regression script, but the target variable now includes Hour, Minute, and Second.
+  2. **Model evaluation**: The same three regression models are evaluated, but with the additional time features.
+  3. **Metrics**: MAE, MSE, and R² are calculated for each model.
+
+- **Output**: Performance metrics for each regression model with additional time features.
+
+---
+
+## Summary
+
+- **Data Cleaning**: The `cleaning data 1(deletion).py` script prepares the raw dataset by removing rows with missing or invalid data.
+- **Classification Models**: The `choosing classification model (1).py`, `(2).py`, and `(3).py` scripts evaluate classification models to predict earthquake regions, with each script adding more features (magnitude and depth) to improve accuracy.
+- **Regression Models**: The `choosing regression model (1).py` and `(2).py` scripts evaluate regression models to predict the date and time of earthquake occurrences, with the second script including more granular time features.
+
+Each script outputs performance metrics, allowing for easy comparison of different models and feature sets.
